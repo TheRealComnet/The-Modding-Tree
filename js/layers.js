@@ -6,7 +6,7 @@ addLayer("p", {
         unlocked: true,
 		points: new Decimal(0),
     }},
-    color: "#4BDC13",
+    color: "#8f67d8",
     requires: new Decimal(10), // Can be a function that takes requirement increases into account
     resource: "prestige points", // Name of prestige currency
     baseResource: "points", // Name of resource prestige is based on
@@ -27,10 +27,30 @@ addLayer("p", {
     layerShown(){return true},
     upgrades: {
      11: {
-          title: "Make this whatever you want!",
-    description: "Double your point gain.",
-    cost: new Decimal(1),
-
+          title: "Absolute",
+    description: "Begin.",
+    cost: new Decimal(1)
         },
+     12: {
+          title: "Continue",
+    description: "x2",
+    cost: new Decimal(2),
+    unlocked() { return hasUpgrade("p", 11) },
+        },
+     13: {
+          title: "Recreate",
+    description: "xP",
+    cost: new Decimal(3),
+    unlocked() { return hasUpgrade("p", 12) },
+     effect() {
+        return player[this.layer].points.add(1).pow(0.5)
     },
-})
+    effectDisplay() { return format(upgradeEffect(this.layer, this.id))+"x" },
+    },
+     21: {
+        title: "Wonder",
+    description: "Absolutus",
+    cost: new Decimal(5),
+    unlocked() { return hasUpgrade("p", 13 )},
+     }
+},},)
