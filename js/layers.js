@@ -54,17 +54,18 @@ addLayer("p", {
     unlocked() { return hasUpgrade("p", 13 )},
      }
 },},)
-addLayer("f", {
-    name: "prestige", // This is optional, only used in a few places, If absent it just uses the layer id.
-    symbol: "P", // This appears on the layer's node. Default is the id with the first letter capitalized
+addLayer("t", {
+    name: "time", // This is optional, only used in a few places, If absent it just uses the layer id.
+    symbol: "T", // This appears on the layer's node. Default is the id with the first letter capitalized
     position: 0, // Horizontal position within a row. By default it uses the layer id and sorts in alphabetical order
     startData() { return {
         unlocked: true,
 		points: new Decimal(0),
     }},
-    color: "#8f67d8",
-    requires: new Decimal(10), // Can be a function that takes requirement increases into account
-    resource: "prestige points", // Name of prestige currency
+    color: "#678bd8",
+    requires: new Decimal(200), // Can be a function that takes requirement increases into account
+    branches: ["p"],
+    resource: "Tempo", // Name of prestige currency
     baseResource: "points", // Name of resource prestige is based on
     baseAmount() {return player.points}, // Get the current amount of baseResource
     type: "normal", // normal: cost to gain currency depends on amount gained. static: cost depends on how much you already have
@@ -76,9 +77,62 @@ addLayer("f", {
     gainExp() { // Calculate the exponent on main currency from bonuses
         return new Decimal(1)
     },
-    row: 0, // Row the layer is in on the tree (0 is the first row)
+    row: 1, // Row the layer is in on the tree (0 is the first row)
     hotkeys: [
-        {key: "p", description: "P: Reset for prestige points", onPress(){if (canReset(this.layer)) doReset(this.layer)}},
+        {key: "t", description: "Tempo", onPress(){if (canReset(this.layer)) doReset(this.layer)}},
     ],
-    layerShown(){return true},
-})
+    layerShown(){return hasUpgrade("p", 21 )},
+    milestones: {
+    0: {
+        requirementDescription: "1 Tempo",
+        effectDescription: "2/2",
+        done() { return player.t.best.gte(1) },
+    },
+    1: {
+        requirementDescription: "5 Tempo",
+        effectDescription: "4/4",
+        done() { return player.t.best.gte(5) },
+        unlocked() { return hasMilestone('t', 0 )},
+    }
+
+},})
+addLayer("a", {
+    name: "Absolute", // This is optional, only used in a few places, If absent it just uses the layer id.
+    symbol: "A", // This appears on the layer's node. Default is the id with the first letter capitalized
+    position: 2, // Horizontal position within a row. By default it uses the layer id and sorts in alphabetical order
+    startData() { return {
+        unlocked: true,
+		points: new Decimal(0),
+    }},
+    color: "#64cebc",
+    requires: new Decimal(1000), // Can be a function that takes requirement increases into account
+    resource: "Absolute", // Name of prestige currency
+    baseResource: "points", // Name of resource prestige is based on
+    branches: ["t"],
+    baseAmount() {return player.points}, // Get the current amount of baseResource
+    type: "static", // normal: cost to gain currency depends on amount gained. static: cost depends on how much you already have
+    exponent: 0.5, // Prestige currency exponent
+    gainMult() { // Calculate the multiplier for main currency from bonuses
+        mult = new Decimal(1)
+        return mult
+    },
+    gainExp() { // Calculate the exponent on main currency from bonuses
+        return new Decimal(1)
+    },
+    row: 1, // Row the layer is in on the tree (0 is the first row)
+    hotkeys: [
+        {key: "a", description: "Absolute", onPress(){if (canReset(this.layer)) doReset(this.layer)}},
+    ],
+    layerShown(){return player.t.best.gte(2) },
+    buyables: {
+        11: {
+            cost() { return new Decimal(1) },
+        display() { return "Blah" },
+        canAfford() { return player[this.layer].points.gte(this.cost()) },
+        buy() {
+            player[this.layer].points = player[this.layer].points.sub(this.cost())
+            setBuyableAmount(this.layer, this.id, getBuyableAmount(this.layer, this.id).add(1))
+        },
+    },
+
+},})
